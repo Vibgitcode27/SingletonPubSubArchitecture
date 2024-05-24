@@ -22,7 +22,7 @@ export class GlobalStock {
   private constructor() {
     this.stocks = [];
     this.client = createClient();
-    this.client.connect();
+    this.client.connect().catch(console.error);
   }
 
   public static getInstance(): GlobalStock {
@@ -33,14 +33,14 @@ export class GlobalStock {
     return GlobalStock.instance;
   }
 
-  public subscribe(subscriber: Subscribers) {
-    let is_Subscribed = this.subscribers.filter((e) => e.id === subscriber.id);
+  public async subscribe(subscriber: Subscribers) {
+    let is_Subscribed = this.subscribers.some((e) => e.id === subscriber.id);
 
     if (!is_Subscribed) {
       this.subscribers.push(subscriber);
     }
 
-    this.client.subscribe("myTopic", function (err) {
+    await this.client.subscribe("appleStock", function (err) {
       if (err) {
         console.error("Subscription failed:", err);
       } else {
@@ -49,13 +49,22 @@ export class GlobalStock {
     });
   }
 
-  public unsubscribe(subscriberId: string) {
+  public async unsubscribe(subscriberId: string) {
     this.subscribers = this.subscribers.filter(
       (subscriber) => subscriber.id !== subscriberId
     );
+    await this.client.unsubscribe("appleStock", function (err) {
+      if (err) {
+        console.error("Subscription failed:", err);
+      } else {
+        console.log("Subscription successful:");
+      }
+    });
   }
 
-  public async checkRedis() {}
+  public async publishAppleStock(value: number) {
+    await this.client.publish("appleStock", `${value}`);
+  }
 }
 
 const globalStock = GlobalStock.getInstance();
