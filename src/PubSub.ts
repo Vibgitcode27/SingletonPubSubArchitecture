@@ -34,7 +34,19 @@ export class GlobalStock {
   }
 
   public subscribe(subscriber: Subscribers) {
-    this.subscribers.push(subscriber);
+    let is_Subscribed = this.subscribers.filter((e) => e.id === subscriber.id);
+
+    if (!is_Subscribed) {
+      this.subscribers.push(subscriber);
+    }
+
+    this.client.subscribe("myTopic", function (err) {
+      if (err) {
+        console.error("Subscription failed:", err);
+      } else {
+        console.log("Subscription successful:");
+      }
+    });
   }
 
   public unsubscribe(subscriberId: string) {
