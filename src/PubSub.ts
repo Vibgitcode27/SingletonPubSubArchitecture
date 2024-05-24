@@ -7,7 +7,7 @@ interface CompanyStock {
   value: number;
 }
 
-interface Subscribers {
+export interface Subscribers {
   id: string;
   name: string;
 }
@@ -40,26 +40,20 @@ export class GlobalStock {
       this.subscribers.push(subscriber);
     }
 
-    await this.client.subscribe("appleStock", function (err) {
-      if (err) {
-        console.error("Subscription failed:", err);
-      } else {
-        console.log("Subscription successful:");
-      }
+    await this.client.subscribe("appleStock", (message) => {
+      console.log(message);
     });
+
+    console.log(this.subscribers);
   }
 
   public async unsubscribe(subscriberId: string) {
     this.subscribers = this.subscribers.filter(
       (subscriber) => subscriber.id !== subscriberId
     );
-    await this.client.unsubscribe("appleStock", function (err) {
-      if (err) {
-        console.error("Subscription failed:", err);
-      } else {
-        console.log("Subscription successful:");
-      }
-    });
+    await this.client.unsubscribe("appleStock");
+
+    console.log(this.subscribers);
   }
 
   public async publishAppleStock(value: number) {
@@ -67,4 +61,4 @@ export class GlobalStock {
   }
 }
 
-const globalStock = GlobalStock.getInstance();
+export const globalStock = GlobalStock.getInstance();
